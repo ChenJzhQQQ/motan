@@ -31,7 +31,6 @@ import com.weibo.api.motan.exception.MotanFrameworkException;
 import com.weibo.api.motan.util.LoggerUtil;
 
 /**
- * 
  * abstract config
  *
  * @author fishermen
@@ -54,7 +53,7 @@ public abstract class AbstractConfig implements Serializable {
 
     /**
      * 按顺序进行config 参数append and override，按照configs出现的顺序，后面的会覆盖前面的相同名称的参数
-     * 
+     *
      * @param parameters
      * @param configs
      */
@@ -83,7 +82,7 @@ public abstract class AbstractConfig implements Serializable {
 
     /**
      * 将config 参数录入Map中
-     * 
+     *
      * @param parameters
      */
     @SuppressWarnings("unchecked")
@@ -130,12 +129,27 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    /**
+     * 判断传入的方法是否为属性的get方法
+     *
+     * @param method
+     * @return
+     */
     private boolean isConfigMethod(Method method) {
+        /**
+         * 条件：A或者B满足
+         * A：方法以get开头
+         * B：以is开头 && 方法名不为isDefault && 方法为公共方法 && 方法的输入参数为0 && 方法的返回值为基础属性
+         */
         boolean checkMethod =
                 (method.getName().startsWith("get") || method.getName().startsWith("is")) && !"isDefault".equals(method.getName())
                         && Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 0
                         && isPrimitive(method.getReturnType());
 
+        /**
+         * 如果方法被{@link ConfigDesc}注释注解，并且{@link ConfigDesc#excluded()}方法为true(默认false)
+         * 则认为此方法不为基础get方法
+         */
         if (checkMethod) {
             ConfigDesc configDesc = method.getAnnotation(ConfigDesc.class);
             if (configDesc != null && configDesc.excluded()) {
@@ -186,7 +200,7 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
-    private static final String[] SUFFIXS = new String[] {"Config", "Bean"};
+    private static final String[] SUFFIXS = new String[]{"Config", "Bean"};
 
     private static String getTagName(Class<?> cls) {
         String tag = cls.getSimpleName();
