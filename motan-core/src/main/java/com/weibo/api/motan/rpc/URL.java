@@ -79,7 +79,7 @@ public class URL {
         int i = url.indexOf("?"); // seperator between body and parameters
         if (i >= 0) {
             /**
-             * 将所有？后面的参数根据&和=分割放入Map中
+             * 将所有？后面的参数根据&和=分割放入Map中XX
              */
             String[] parts = url.substring(i + 1).split("\\&");
 
