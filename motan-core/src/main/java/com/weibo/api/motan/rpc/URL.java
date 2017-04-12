@@ -16,17 +16,16 @@
 
 package com.weibo.api.motan.rpc;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.weibo.api.motan.common.MotanConstants;
 import com.weibo.api.motan.common.URLParamType;
 import com.weibo.api.motan.exception.MotanServiceException;
 import com.weibo.api.motan.util.MotanFrameworkUtil;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <pre>
@@ -76,9 +75,12 @@ public class URL {
         String host = null;
         int port = 0;
         String path = null;
-        Map<String, String> parameters = new HashMap<String, String>();;
+        Map<String, String> parameters = new HashMap<String, String>();
         int i = url.indexOf("?"); // seperator between body and parameters
         if (i >= 0) {
+            /**
+             * 将所有？后面的参数根据&和=分割放入Map中
+             */
             String[] parts = url.substring(i + 1).split("\\&");
 
             for (String part : parts) {
@@ -92,12 +94,15 @@ public class URL {
                     }
                 }
             }
+            //url为?前的字符串
             url = url.substring(0, i);
         }
         i = url.indexOf("://");
         if (i >= 0) {
             if (i == 0) throw new IllegalStateException("url missing protocol: \"" + url + "\"");
+            //截取协议名
             protocol = url.substring(0, i);
+            //截取://后面到?中间的字符串
             url = url.substring(i + 3);
         } else {
             i = url.indexOf(":/");

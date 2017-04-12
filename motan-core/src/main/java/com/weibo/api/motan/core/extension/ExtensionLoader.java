@@ -16,6 +16,11 @@
 
 package com.weibo.api.motan.core.extension;
 
+import com.weibo.api.motan.common.MotanConstants;
+import com.weibo.api.motan.exception.MotanFrameworkException;
+import com.weibo.api.motan.util.LoggerUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,20 +28,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceConfigurationError;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.weibo.api.motan.common.MotanConstants;
-import com.weibo.api.motan.exception.MotanFrameworkException;
-import com.weibo.api.motan.util.LoggerUtil;
 
 /**
  * <pre>
@@ -170,8 +164,17 @@ public class ExtensionLoader<T> {
         init = true;
     }
 
+    /**
+     * 去同步HashMap extensionLoaders中获取，key为Class<T> type，value为ExtensionLoader实例
+     * 如果不存在对应的type，则放入一个新的type <-> ExtensionLoader实例
+     *
+     * @param type
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
+        //判断Class不为Null，为接口，添加了@Spi的注解
         checkInterfaceType(type);
 
         ExtensionLoader<T> loader = (ExtensionLoader<T>) extensionLoaders.get(type);
@@ -316,6 +319,7 @@ public class ExtensionLoader<T> {
         try {
             Enumeration<URL> urls;
             if (classLoader == null) {
+                //从用来加载类的搜索路径中查找所有具有指定名称的资源。
                 urls = ClassLoader.getSystemResources(fullName);
             } else {
                 urls = classLoader.getResources(fullName);
