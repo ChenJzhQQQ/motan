@@ -329,6 +329,7 @@ public class AbstractInterfaceConfig extends AbstractConfig {
                     address = NetUtils.LOCALHOST + ":" + MotanConstants.DEFAULT_INT_VALUE;
                 }
                 Map<String, String> map = new HashMap<String, String>();
+                // 将config中的属性都放入Map中
                 config.appendConfigParams(map);
 
                 map.put(URLParamType.application.getName(), getApplication());

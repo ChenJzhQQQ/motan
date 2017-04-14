@@ -106,19 +106,26 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         return existingServices.contains(url.getIdentity());
     }
 
+    /**
+     * 发布注册服务
+     */
     public synchronized void export() {
         if (exported.get()) {
             LoggerUtil.warn(String.format("%s has already been expoted, so ignore the export request!", interfaceClass.getName()));
             return;
         }
 
+        //检查输入的类是否为接口，并判断方法是否在接口中
         checkInterfaceAndMethods(interfaceClass, methods);
 
+
+        //将注册中心的配置加载为URL
         List<URL> registryUrls = loadRegistryUrls();
         if (registryUrls == null || registryUrls.size() == 0) {
             throw new IllegalStateException("Should set registry config for service:" + interfaceClass.getName());
         }
 
+        //ProtocolConfig配置，protocol:port 的格式，Map中key为protocol，value为prot
         Map<String, Integer> protocolPorts = getProtocolAndPort();
         for (ProtocolConfig protocolConfig : protocols) {
             Integer port = protocolPorts.get(protocolConfig.getId());
