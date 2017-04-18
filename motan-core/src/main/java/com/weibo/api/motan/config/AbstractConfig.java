@@ -92,15 +92,20 @@ public abstract class AbstractConfig implements Serializable {
             try {
                 String name = method.getName();
                 if (isConfigMethod(method)) {
+                    //获取方法名,去掉get和is，只留下属性名
                     int idx = name.startsWith("get") ? 3 : 2;
+                    //方法首字母小写
                     String prop = name.substring(idx, idx + 1).toLowerCase() + name.substring(idx + 1);
                     String key = prop;
+                    //如果设置了ConfigDesc注解的key名，则使用注解的key
                     ConfigDesc configDesc = method.getAnnotation(ConfigDesc.class);
                     if (configDesc != null && !StringUtils.isBlank(configDesc.key())) {
                         key = configDesc.key();
                     }
-
+                    //get方法调用返回参数
                     Object value = method.invoke(this);
+
+                    //ConfigDesc注解如果required为true，并且值为空，抛出MotanFrameworkException异常
                     if (value == null || StringUtils.isBlank(String.valueOf(value))) {
                         if (configDesc != null && configDesc.required()) {
                             throw new MotanFrameworkException(String.format("%s.%s should not be null or empty", this.getClass()
@@ -112,6 +117,7 @@ public abstract class AbstractConfig implements Serializable {
                         key = prefix + "." + key;
                     }
                     parameters.put(key, String.valueOf(value).trim());
+                    //设置getParameters()方法的返回Map的参数
                 } else if ("getParameters".equals(name) && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 0 && method.getReturnType() == Map.class) {
                     Map<String, String> map = (Map<String, String>) method.invoke(this);
@@ -159,6 +165,13 @@ public abstract class AbstractConfig implements Serializable {
         return checkMethod;
     }
 
+    /**
+     * {@link Class#isPrimitive()}方法判断8大基础类型
+     * 再判断基础类型的包装类型 和 String类型
+     *
+     * @param type
+     * @return
+     */
     private boolean isPrimitive(Class<?> type) {
         return type.isPrimitive() || type == String.class || type == Character.class || type == Boolean.class || type == Byte.class
                 || type == Short.class || type == Integer.class || type == Long.class || type == Float.class || type == Double.class;
